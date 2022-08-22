@@ -9,11 +9,6 @@ const multer = require('multer');
 
 require("dotenv").config();
 
-
-// routes import
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-
 // images upload config
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -37,10 +32,8 @@ const corsConfig = {
     origin: true,
     credentials: true,
   };
-  
 
 // middlewares
-
 app.use(cors(corsConfig));
 app.options('*', cors(corsConfig));
 app.use(express.json());
@@ -55,18 +48,22 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/',authRoutes);
+// routes
+app.use('/', require('./routes/authRoutes'));
+app.use('/app', require('./routes/userRoutes'));
 
-app.use('/app',userRoutes);
-
-
+app.get('/user', function(req, res) {
+    console.log('req.cookies', req.cookies);
+    res.send(req.cookies);
+});
 
 app.use((error, req, res, next) => {
     const data = error.data;
     const status = error.statusCode || 500;
     const message = error.message;
     res.status(status).json({message: message, data: data})
-})
+});
+
 mongoose
     .connect('mongodb+srv://yassinbagane2:52544318@cluster0.qollkp9.mongodb.net/Project1')
     .then(() => {
@@ -75,4 +72,4 @@ mongoose
     })
     .catch(err => {
         console.log(err);
-    })
+    });

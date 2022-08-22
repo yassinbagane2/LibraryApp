@@ -11,8 +11,7 @@ exports.getUser = async (req, res, next) => {
 
     } else {
         return res.status(406).json({ message: 'Unauthorized Token.' });
-    }
-      
+    }   
 }
 
 exports.getBooks = (req, res, next) => {
