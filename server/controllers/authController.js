@@ -40,23 +40,19 @@ exports.postRegister = (req, res, next) => {
             }
             next(error);
         })
-       
-    
 }
 exports.postLogin = (req, res, next) => {
 
     const password = req.body.password
     User.findOne({
         email: req.body.email
-    })
-    .then(user => {
+    }).then(user => {
         if (!user) {
             return res.status(401).json({message: 'Invalid Email'})
         }
         
         bcrypt
-        .compare(password, user.password)
-        .then(doMatch => {
+        .compare(password, user.password).then(doMatch => {
             if (!doMatch) {
                 const error = new Error ("Wrong Password");
                 error.statusCode = 401;
@@ -69,15 +65,13 @@ exports.postLogin = (req, res, next) => {
                {expiresIn: '1y'});
                 res.cookie('jwt', accessToken, { httpOnly: true, samesite:'None', secure : true, maxAge: 24 * 60 * 60 * 1000 }); 
                 return res.status(200).json({message: 'logged In',token: accessToken})} 
-        })
-        .catch(error => {
+        }).catch(error => {
             if (!error.statusCode) {
                 error.statusCode = 500
             }
             next(error);
-        })
-        
-    })
+        });
+    });
     
       
 }
