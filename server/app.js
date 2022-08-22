@@ -58,7 +58,16 @@ app.use((req, res, next) => {
 app.use('/',authRoutes);
 
 app.use('/app',userRoutes);
-
+app.get('/user',(req, res) => {
+    console.log(req.cookies)
+    if (req.cookies?.jwt) {
+        const token = req.cookies.jwt;
+        console.log(token);
+        
+    } else {
+        return res.status(406).json({ message: 'Unauthorized Token.' });
+    }
+})
 
 
 app.use((error, req, res, next) => {
