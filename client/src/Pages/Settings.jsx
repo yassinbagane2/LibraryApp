@@ -1,8 +1,41 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 import Navbar from '../Components/Navbar'
-import Button from '../Components/UI/Button'
-
+import useAuth from '../Hooks/useAuth'
 const Settings = () => {
+    const { user } = useAuth(); 
+ 
+    const [values, setValues] = useState({
+
+    });
+    const [fileName, setFileName] = useState('');
+    const onChange = (e) => {
+        setValues((prev) => {
+          return {...prev, [e.target.name]: e.target.value}
+        });
+    }
+
+    const onChangeFile = e => {
+        setFileName(e.target.files[0]);
+      };
+    const formData = new FormData();
+    // formData.append('email',values.email);
+    // formData.append('password',values.password);
+    // formData.append('birthday',values.birthday);
+    // formData.append('image',fileName);
+
+    const updateUser = (e) => {
+        e.preventDefault();
+        console.log(formData.fullname);
+        // axios.put('http://localhost:8080/update-user', {
+        //     headers:{
+        //         Authorization: `Bearer ${user.accessToken}`
+        //       }
+        // }).then(res => {
+        //     console.log(res);
+        // })
+    }
+    
   return (
     <>
         <Navbar />
@@ -11,7 +44,7 @@ const Settings = () => {
                 <div className='text-white bg-gray-800 h-36 font-bold text-4xl flex justify-center items-center'>
                     <h1>Settings</h1>
                 </div>
-                <form action="" method='POST' className='mt-10 flex flex-col items-center justify-between'>
+                <form method='POST' className='mt-10 flex flex-col items-center justify-between' onSubmit={updateUser}>
                     <div className='w-3/4'>
                         <label htmlFor="fullname" className="block text-sm font-medium text-gray-700">
                         Full name<span className='text-red-600'>*</span>
@@ -21,6 +54,8 @@ const Settings = () => {
                             id="fullname"
                             name="fullname"
                             type="fullname"
+                            onChange={onChange}
+                            defaultValue={user.fullName}
                             required
                             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
                         />
@@ -34,7 +69,9 @@ const Settings = () => {
                         <input
                             id="email"
                             name="email"
+                            onChange={onChange}
                             type="email"
+                            defaultValue={user.email}
                             required
                             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
                         />
@@ -47,6 +84,7 @@ const Settings = () => {
                         <div className="mt-1">
                         <input
                             id="password"
+                            onChange={onChange}
                             name="password"
                             type="password"
                             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
@@ -54,16 +92,18 @@ const Settings = () => {
                         </div>
                     </div>
                     <div className='w-3/4'>
-                        <label htmlFor="repeated-password" className="block text-sm font-medium text-gray-700">
-                        Password Confirmation
+                        <label htmlFor="Birthday" className="block text-sm font-medium text-gray-700">
+                            Birth Date
                         </label>
                         <div className="mt-1">
-                        <input
-                            id="repeatedPassword"
-                            name="repeatedPassword"
-                            type="password"
-                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
-                        />
+                            <input
+                            id="birthday"
+                            onChange={onChange}
+                            name="birthday"
+                            type="date"
+                            required
+                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none"
+                            />
                         </div>
                     </div>
                     <div className='w-3/4'>
@@ -74,8 +114,8 @@ const Settings = () => {
                         <input
                             id="profileImage"
                             name="profileImage"
+                            onChange={onChangeFile}
                             type="file"
-                            required
                             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
                         />
                         </div>

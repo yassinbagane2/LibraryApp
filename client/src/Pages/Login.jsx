@@ -21,9 +21,9 @@ export default function Login() {
     },{
       withCredentials: true
     }).then(res => {
-      console.log(res.data);
-      setUser(prev => ({...prev, accessToken: res.data.token}))
-      navigate('/app', { replace: true });
+      setUser(prev => ({...prev, accessToken: res.data.token}));
+      localStorage.setItem('isAuth',true);
+      navigate('/', { replace: true });
     }).catch(err => {
       console.log(err);
     })

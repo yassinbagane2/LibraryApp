@@ -3,11 +3,21 @@ import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import { Link } from 'react-router-dom'
+import useAuth from '../Hooks/useAuth'
+import axios from 'axios'
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 export default function Navbar(props) {
+  const {user} = useAuth();
+  const logoutHandler = () => {
+    axios.get('http://localhost:8080/app/logout',{
+      withCredentials: true
+    }).then(res => {
+      localStorage.removeItem('isAuth');
+    })
+  }
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -35,8 +45,8 @@ export default function Navbar(props) {
                         <span className="sr-only">Open user menu</span>
                         <img
                           className="h-8 w-8 rounded-full"
-                          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                          alt=""
+                          src={`http://localhost:8080/${user.profileImage }`}
+                          alt="profile"
                         />
                       </Menu.Button>
                     </div>
@@ -62,7 +72,7 @@ export default function Navbar(props) {
                         </Menu.Item>
                         <Menu.Item>
                         {({ active }) => (
-                          <Link to='/login' className={classNames(
+                          <Link to='/login' onClick={logoutHandler} className={classNames(
                             active ? 'bg-gray-100' : '',
                             'block px-4 py-2 text-sm text-gray-700'
                           )}>                            
@@ -126,13 +136,9 @@ export default function Navbar(props) {
                 >
                   Settings
                 </Disclosure.Button>
-                <Disclosure.Button
-                  as="a"
-                  href="#"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
-                >
-                  Sign out
-                </Disclosure.Button>
+                <Link to='/login' onClick={logoutHandler} className={classNames('block px-4 py-2 text-sm text-gray-700')}>                            
+                    Sign out                             
+                </Link>
               </div>
             </div>
           </Disclosure.Panel>

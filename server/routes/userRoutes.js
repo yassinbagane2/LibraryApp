@@ -5,9 +5,11 @@ const isAuth = require('../middlewares/isAuth')
  
 
 router.get('/user',userControllers.getUser);
-router.get('/books', userControllers.getMyBooks);
+router.get('/logout',userControllers.logoutUser);
+router.get('/books', userControllers.getBooks);
 router.get('/mybooks', isAuth , userControllers.getMyBooks)
-router.post('/addbook', isAuth , userControllers.postBook);
+router.post('/addbook',isAuth, userControllers.postBook);
 router.get('/book/:bookId', userControllers.getBook);
-// router.delete('/delete/:productId',userControllers.deleteBook)
+router.put('/book/:bookId',userControllers.updateBook);
+router.delete('/delete/:bookId',userControllers.deleteBook)
 module.exports = router;

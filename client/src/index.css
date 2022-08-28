@@ -5,9 +5,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap');
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'inter', sans-serif;
     background-color: #edf2f7;
 }
 textarea { 
     resize:none; 
+}
+
+.description {
+    text-overflow: ellipsis;
+    display: -webkit-box; 
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
 }

@@ -1,23 +1,47 @@
-const Book = require('../models/book.modal')
+const Book = require('../models/book.model');
+const User = require('../models/user.model');
+const jwt = require('jsonwebtoken');
+const path = require('path');
+const fs = require('fs');
 
 
-
-
-exports.getUser = async (req, res, next) => {
-    console.log(req.cookies)
+exports.getUser = (req, res, next) => {
     if (req.cookies?.jwt) {
         const token = req.cookies.jwt;
-        console.log(token);
 
+        jwt.verify(token,process.env.ACCESS_TOKEN_SECRET, async(err, decoded) => {
+            if (err) return res.status(403).json({message: 'Invalid Token.'});
+            const userId = decoded.userId
+            User.findById(userId).then(user => {
+                if (!user) {
+                    const error = new Error('Not User Found.');
+                    error.statusCode= 401;
+                    error.message = 'No User Found With This Email';
+                    throw error;
+                }
+                return res.status(200).json({user, accessToken: token})
+
+            }).catch(err => {
+                if (!err.statusCode) {
+                    err.statusCode = 500
+                }
+                next(err)
+            })
+        });
     } else {
-        return res.status(406).json({ message: 'Unauthorized Token.' });
-    }   
+        return res.status(401).json({ message: 'Not authenticated' });
+    }  
+}
+
+exports.logoutUser = (req, res) => {
+    res.clearCookie('jwt',{ httpOnly: true });
+    return res.sendStatus(200);
 }
 
 exports.getBooks = (req, res, next) => {
     Book.find()
     .then(books => {
-        return res.status(200).json({message: "Books Fetched Succesfully.", books: books})
+        return res.status(200).json(books)
     })
     .catch(error => {
         if (!error.statusCode) {
@@ -64,16 +88,15 @@ exports.postBook = (req, res, next) => {
         error.statusCode = 422;
         throw error; 
     }
-    console.log(req.file)
-    const { title, author, description, status } = req.body
-    const imageUrl = req.file.path;
+    const { title, author, price, description } = req.body
+    const image = req.file.path;
     const book = new Book({
-        title: title,
-        author: author,
-        description: description,
-        imageUrl: imageUrl,
+        title,
+        author,
+        description,
+        price,
+        imageUrl: image,
         creator: req.userId,
-        availability: status
     })
     book.save()
     .then(result => {
@@ -91,23 +114,60 @@ exports.postBook = (req, res, next) => {
 
 }
 
-// exports.editBook = (req, res) => {
+exports.updateBook = (req, res, next) => {
+    const bookId = req.params.bookId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const error = new Error('Validation failed, entered data is incorrect.');
+        error.statusCode = 422;
+        throw error;
+    }
+    const { title, author, description, price  } = req.body;
+    let image = req.file.path;
+    Book.findById(bookId).then(book => {
+        if (!book) {
+            const error = new Error('Could Not Find This Book');
+            error.statusCode = 404;
+            throw error;
+        }
+        if (image !== book.imageUrl) {
+            book.imageUrl = image;
+        }
+        book.title = title;
+        book.author = author;
+        book.description = description;
+        book.price = price;
 
-// }
+        return book.save();
+    }).then(result => {
+        res.status(200).json({message: 'book updated!', book: result});
+    }).catch(error => {
+        next(error);
+    })
+}
+exports.deleteBook = (req, res, next) => {
+   const bookId = req.params.bookId;
+   Book.findById(bookId)
+    .then(book => {
+        if(!book) {
+            const error = new Error('Could Not Find Book.');
+            error.statusCode = 404;
+            throw error;
+        }
+        clearImage(book.imageUrl);
+        return Book.findByIdAndRemove(bookId);
 
-// exports.deleteBook = (req, res) => {
-//    const productId = req.params.productId;
-//    Book.findById(req.productId)
-//     .then(book => {
-//         if(!book) {
-//             const error = new Error('Could Not Find Book.');
-//             error.statusCode = 404;
-//             throw error;
-//         }
-//         res.status(200).json({message: 'Book Fetched', Book: Book})
-//     })
-//     .catch(err => {
-//         next(err)
-//     })
-// }
+    }).then(result => {
+        res.status(200).json(result);
+    })
+    .catch(err => {
+        next(err)
+    })
+}
 
+const clearImage = filePath => {
+    filePath = path.join(__dirname, '..', filePath);
+    fs.unlink(filePath, err =>
+         console.log(err));
+    };
+  

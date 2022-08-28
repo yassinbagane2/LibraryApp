@@ -16,21 +16,17 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
      },
-    //  refreshToken: {
-    //     type: [String]
-    //  }
-    // profileImage: {
-    //     type: String,
-    //     required: true
-    // },
-    // birthdate: {
-    //     type: Date,
-    //     required: true
-    // },
-    // gender: {
-    //     type: String,
-    //     required: true
-    // }
+    profileImage: {
+        type: String,
+    },
+    birthday: {
+        type: Date,
+        required: true
+    },
+    gender: {
+        type: String,
+        required: true
+    }
 })
 
 module.exports = mongoose.model('User', userSchema);
